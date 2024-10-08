@@ -45,6 +45,7 @@ class HomePage extends StatelessWidget {
                 ),
                 Expanded(
                   child: ListView.builder(
+                    physics: const BouncingScrollPhysics(),
                     itemCount: 20,
                     itemBuilder: (BuildContext context, int index) {
                       return const NoteItemWidget();
