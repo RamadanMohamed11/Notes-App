@@ -6,34 +6,29 @@ import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:notes_app/cubits/notes_cubit/notes_cubit.dart';
 import 'package:notes_app/cubits/notes_cubit/add_notes_states.dart';
 import 'package:notes_app/models/note_model.dart';
+import 'package:notes_app/pages/home_page.dart';
 import 'package:notes_app/widgets/custom_text_form_field.dart';
 
-class ModelBottomSheetWidget extends StatefulWidget {
-  const ModelBottomSheetWidget({
+class ModelBottomSheetForSearchWidget extends StatefulWidget {
+  const ModelBottomSheetForSearchWidget({
     super.key,
   });
 
   @override
-  State<ModelBottomSheetWidget> createState() => _ModelBottomSheetWidgetState();
+  State<ModelBottomSheetForSearchWidget> createState() =>
+      _ModelBottomSheetForSearchWidgetState();
 }
 
-class _ModelBottomSheetWidgetState extends State<ModelBottomSheetWidget> {
+class _ModelBottomSheetForSearchWidgetState
+    extends State<ModelBottomSheetForSearchWidget> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  final TextEditingController titleController = TextEditingController();
+  final TextEditingController searchController = TextEditingController();
 
-  final TextEditingController contentController = TextEditingController();
+  String searchText = "";
 
-  late String title;
-
-  late String content;
-
-  void titleOnSavedMethod(String? value) {
-    title = value!;
-  }
-
-  void contentOnSavedMethod(String? value) {
-    content = value!;
+  void searchOnSavedMethod(String? value) {
+    searchText = value!;
   }
 
   @override
@@ -72,18 +67,10 @@ class _ModelBottomSheetWidgetState extends State<ModelBottomSheetWidget> {
                   const SizedBox(height: 50),
                   CustomTextFormField(
                     maxLines: 1,
-                    myController: titleController,
-                    hintText: "Title",
+                    myController: searchController,
+                    hintText: "Search",
                     validatorMethod: validatorMethod,
-                    onSavedMehod: titleOnSavedMethod,
-                  ),
-                  const SizedBox(height: 25),
-                  CustomTextFormField(
-                    maxLines: 5,
-                    hintText: "Content",
-                    myController: contentController,
-                    validatorMethod: validatorMethod,
-                    onSavedMehod: contentOnSavedMethod,
+                    onSavedMehod: searchOnSavedMethod,
                   ),
                   const SizedBox(height: 50),
                   Padding(
@@ -91,15 +78,30 @@ class _ModelBottomSheetWidgetState extends State<ModelBottomSheetWidget> {
                     child: InkWell(
                       onTap: () async {
                         if (_formKey.currentState!.validate()) {
+                          bool isFound = false;
                           _formKey.currentState!.save();
-                          await BlocProvider.of<NotesCubit>(context).addNote(
-                              NoteModel(
-                                  content: contentController.text,
-                                  title: titleController.text,
-                                  date: DateFormat("yyyy/MM/dd")
-                                      .format(DateTime.now())));
-                          titleController.clear();
-                          contentController.clear();
+                          for (int i = 0;
+                              i <
+                                  BlocProvider.of<NotesCubit>(context)
+                                      .notes
+                                      .length;
+                              i++) {
+                            if (BlocProvider.of<NotesCubit>(context)
+                                    .notes[i]
+                                    .title
+                                    .toLowerCase() ==
+                                searchText.toLowerCase()) {
+                              isFound = true;
+                              break;
+                            }
+                          }
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => HomePage(
+                                      searchText: searchText,
+                                      isFound: isFound)));
+                          searchController.clear();
                         }
                       },
                       child: Container(
@@ -113,7 +115,7 @@ class _ModelBottomSheetWidgetState extends State<ModelBottomSheetWidget> {
                             child: state is NotesLoadingState
                                 ? const CircularProgressIndicator()
                                 : Text(
-                                    "Add Note",
+                                    "Search For Note",
                                     textAlign: TextAlign.center,
                                     style: GoogleFonts.poppins(fontSize: 30),
                                   ),

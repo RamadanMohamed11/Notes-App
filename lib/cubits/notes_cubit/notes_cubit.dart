@@ -4,39 +4,52 @@ import 'package:notes_app/constants.dart';
 import 'package:notes_app/cubits/notes_cubit/add_notes_states.dart';
 import 'package:notes_app/models/note_model.dart';
 
-class AddNotesCubit extends Cubit<AddNotesStates> {
-  AddNotesCubit() : super(AddNotesInitialState());
+class NotesCubit extends Cubit<NotesStates> {
+  List<NoteModel> notes = [];
+  NotesCubit() : super(NotesInitialState());
   addNote(NoteModel noteModel) async {
-    emit(AddNotesLoadingState());
+    emit(NotesLoadingState());
     try {
       Box<NoteModel> box = Hive.box<NoteModel>(noteBox);
       await box.add(noteModel);
       emit(AddNotesSuccessState());
     } catch (e) {
-      emit(AddNotesErrorState(error: e.toString()));
+      emit(NotesErrorState(error: e.toString()));
+    }
+  }
+
+  getNotes() {
+    try {
+      Box<NoteModel> box = Hive.box<NoteModel>(noteBox);
+      notes = box.values.toList();
+      emit(GetNotesSuccessState());
+    } catch (e) {
+      emit(NotesErrorState(error: e.toString()));
     }
   }
 
   updateNote(NoteModel noteModel) async {
-    emit(AddNotesLoadingState());
+    emit(NotesLoadingState());
 
     try {
       Box<NoteModel> box = Hive.box<NoteModel>(noteBox);
       await box.putAt(noteModel.key!, noteModel);
-      emit(AddNotesSuccessState());
+      getNotes();
+      emit(GetNotesSuccessState());
     } catch (e) {
-      emit(AddNotesErrorState(error: e.toString()));
+      emit(NotesErrorState(error: e.toString()));
     }
   }
 
   deleteNote(NoteModel noteModel) async {
-    emit(AddNotesLoadingState());
+    emit(NotesLoadingState());
     try {
       Box<NoteModel> box = Hive.box<NoteModel>(noteBox);
       await box.deleteAt(noteModel.key!);
-      emit(AddNotesSuccessState());
+      getNotes();
+      emit(GetNotesSuccessState());
     } catch (e) {
-      emit(AddNotesErrorState(error: e.toString()));
+      emit(NotesErrorState(error: e.toString()));
     }
   }
 }

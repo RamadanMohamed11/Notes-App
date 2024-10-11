@@ -1,16 +1,18 @@
-abstract class AddNotesStates {}
+abstract class NotesStates {}
 
-class AddNotesInitialState extends AddNotesStates {}
+class NotesInitialState extends NotesStates {}
 
-class AddNotesLoadingState extends AddNotesStates {}
+class NotesLoadingState extends NotesStates {}
 
-class AddNotesSuccessState extends AddNotesStates {}
+class GetNotesLoadingState extends NotesStates {}
 
-class AddNotesErrorState extends AddNotesStates {
+class AddNotesSuccessState extends NotesStates {}
+
+class GetNotesSuccessState extends NotesStates {}
+
+class DeleteNotesSuccessState extends NotesStates {}
+
+class NotesErrorState extends NotesStates {
   final String error;
-  AddNotesErrorState({required this.error});
+  NotesErrorState({required this.error});
 }
-
-// class AddNotesEmpty extends AddNotesStates {}
-
-// class AddNotesLoaded extends AddNotesStates {}
